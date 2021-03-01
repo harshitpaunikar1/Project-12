@@ -12,3 +12,7 @@
 
 - Task summary: Half-day Saturday session. Decided to finish the README section I skipped on Friday — cleaner now.
 - Deliverable: Pushed before end of day.
+## 2021-03-01 - Day 2: Data collection pass
+
+- Task summary: Used the next day to keep the momentum going for Housing PCA Case Study. I was still piecing things together, so I focused on trying to load the source dataset and inspect feature meanings before transformation and wrote down the stuff that looked important. This was still the messy setup part where I was opening files, checking examples, and trying not to overthink it too early. Most of the progress here came from patient cleanup more than anything flashy.
+- Deliverable: I wrapped up the day with dataset notes mostly in place. It was not perfect, but it was good enough to keep the project moving. There were still a couple of loose parts, but nothing serious enough to block the next step.
