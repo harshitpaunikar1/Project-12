@@ -24,3 +24,7 @@
 
 - Task summary: Noticed something off from this morning — the output formatting looked messy when printed, so added a cleaner display block.
 - Deliverable: Should've caught it earlier but better now than later.
+## 2021-03-02 - Day 3: Cleaning pass
+
+- Task summary: Noticed something off from this morning — added one more evaluation metric that felt missing from the earlier comparison.
+- Deliverable: Wrapped it up properly this time.
