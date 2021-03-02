@@ -20,3 +20,7 @@
 
 - Task summary: By this point I had the rough direction, so the work became more practical. I spent most of the day trying to standardize types, missing values, and duplicate rows and make the whole thing feel less half baked. Once the base made some sense, I could finally move a bit faster and stop second guessing every tiny decision. A lot of this also meant checking if the numbers were making sense and not just trusting the first result that showed up.
 - Deliverable: I wrapped up the day with cleaned dataset mostly in place. It was not perfect, but it was good enough to keep the project moving. It was not super polished, just stable enough that I felt okay moving forward.
+## 2021-03-02 - Day 3: Cleaning pass
+
+- Task summary: Noticed something off from this morning — the output formatting looked messy when printed, so added a cleaner display block.
+- Deliverable: Should've caught it earlier but better now than later.
