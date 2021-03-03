@@ -32,3 +32,7 @@
 
 - Task summary: By this point I had the rough direction, so the work became more practical. I spent most of the day trying to scale the numeric features so PCA is not distorted by magnitude differences and make the whole thing feel less half baked. The middle part always takes longer than it should, mostly becuase one fix usually reveals two more things to clean up. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
 - Deliverable: I wrapped up the day with scaled features mostly in place. It was not perfect, but it was good enough to keep the project moving. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
+## 2021-03-03 - Day 4: Scaling
+
+- Task summary: Spent another hour on this: ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
+- Deliverable: Pushed before end of day.
