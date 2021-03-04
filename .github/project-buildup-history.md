@@ -36,3 +36,7 @@
 
 - Task summary: Spent another hour on this: ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
 - Deliverable: Pushed before end of day.
+## 2021-03-04 - Day 5: EDA
+
+- Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to look at distributions and correlations to understand redundancy in the data, then cleaned up whatever looked confusing or weak from the earlier days. By now I had enough structure to keep going without staring at the screen too long, which honestly helped a lot. Most of the progress here came from patient cleanup more than anything flashy.
+- Deliverable: I wrapped up the day with eDA summary mostly in place. It was not perfect, but it was good enough to keep the project moving. There were still a couple of loose parts, but nothing serious enough to block the next step.
