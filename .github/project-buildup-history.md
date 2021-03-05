@@ -40,3 +40,7 @@
 
 - Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to look at distributions and correlations to understand redundancy in the data, then cleaned up whatever looked confusing or weak from the earlier days. By now I had enough structure to keep going without staring at the screen too long, which honestly helped a lot. Most of the progress here came from patient cleanup more than anything flashy.
 - Deliverable: I wrapped up the day with eDA summary mostly in place. It was not perfect, but it was good enough to keep the project moving. There were still a couple of loose parts, but nothing serious enough to block the next step.
+## 2021-03-05 - Day 6: PCA run
+
+- Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to run PCA and inspect explained variance across components, then cleaned up whatever looked confusing or weak from the earlier days. Once the base made some sense, I could finally move a bit faster and stop second guessing every tiny decision. A lot of this also meant checking if the numbers were making sense and not just trusting the first result that showed up.
+- Deliverable: Ended the day with pCA output in hand, plus a few side notes on what still needed fixing later. It was not super polished, just stable enough that I felt okay moving forward.
