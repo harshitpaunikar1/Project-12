@@ -48,3 +48,7 @@
 
 - Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to interpret what the main components are capturing in plain language, then cleaned up whatever looked confusing or weak from the earlier days. The middle part always takes longer than it should, mostly becuase one fix usually reveals two more things to clean up. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
 - Deliverable: Ended the day with component notes in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
+## 2021-03-09 - Day 8: Visualization
+
+- Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to plot the reduced dimensions to show structure or separation in the data, then cleaned up whatever looked confusing or weak from the earlier days. By now I had enough structure to keep going without staring at the screen too long, which honestly helped a lot. Most of the progress here came from patient cleanup more than anything flashy.
+- Deliverable: Ended the day with pCA charts in hand, plus a few side notes on what still needed fixing later. There were still a couple of loose parts, but nothing serious enough to block the next step.
