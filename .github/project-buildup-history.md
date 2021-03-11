@@ -40,3 +40,7 @@
 
 - Task summary: Closer to the end, I was mostly tightening things up instead of inventing new scope. The job for the day was to explain how the reduced dimensions help analysis or modeling so the final result looked a bit more complete. I was not trying to add anything fancy here, just making sure the thing looked complete enough to show someone. A lot of this also meant checking if the numbers were making sense and not just trusting the first result that showed up.
 - Deliverable: Ended the day with use-case write-up in hand, plus a few side notes on what still needed fixing later. It was not super polished, just stable enough that I felt okay moving forward.
+## 2021-03-11 - Day 10: Notebook cleanup check
+
+- Task summary: Closer to the end, I was mostly tightening things up instead of inventing new scope. The job for the day was to reorganize code cells, comments, and outputs into a clean flow so the final result looked a bit more complete. Most of the heavy lifting was already done, so this part was more about making the rough edges less obvious. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
+- Deliverable: Ended the day with readable notebook in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
