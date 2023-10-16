@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Does PCA Actually Help a Housing Model?</title>
+  <meta name="description" content="A comparative analysis of PCA in housing-price prediction: cleaner geometry, weaker interpretability, and only a marginal change in model performance.">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Public+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --bg: #ffffff;
+      --ink: #111111;
+      --ink-2: #1a1a1a;
+      --text: #333333;
+      --muted: #555555;
+      --soft: #888888;
+      --rule: #ddd;
+      --divider: #e8e8e8;
+      --panel: #f0f0f0;
+      --inverse: #f5f5f5;
+      --display: "Instrument Serif", Georgia, serif;
+      --sans: "Public Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.72;
+    }
+
+    code {
+      font-family: var(--mono);
+      background: var(--panel);
+      padding: 0.08em 0.3em;
+      font-size: 0.9em;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.2rem 1.2rem 5rem;
+    }
+
+    .hero {
+      border-top: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      padding: 1.1rem 0 1.5rem;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: baseline;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 1.1rem;
+    }
+
+    .eyebrow,
+    .hero-source {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 2rem;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      line-height: 0.93;
+      letter-spacing: -0.04em;
+      font-weight: 400;
+      max-width: 10ch;
+    }
+
+    .deck {
+      margin: 1rem 0 0;
+      max-width: 48rem;
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .hero-card {
+      border: 1px solid var(--ink);
+      background: var(--panel);
+      padding: 1rem 1rem 1.05rem;
+    }
+
+    .hero-card-title {
+      margin: 0 0 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--ink);
+      margin-bottom: 0.8rem;
+    }
+
+    .hero-metrics div {
+      background: var(--bg);
+      padding: 0.8rem 0.85rem;
+      min-height: 88px;
+    }
+
+    .hero-metrics span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--soft);
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-metrics strong {
+      display: block;
+      font-size: 1.15rem;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .hero-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .mirror {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 1.8rem;
+      border: 1px solid var(--ink);
+    }
+
+    .mirror-panel {
+      min-width: 0;
+      padding: 1.15rem 1.25rem 1.2rem;
+    }
+
+    .mirror-panel + .mirror-panel {
+      border-left: 1px solid var(--ink);
+    }
+
+    .mirror-label {
+      display: block;
+      margin-bottom: 0.65rem;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .mirror-panel h2 {
+      margin: 0 0 0.75rem;
+      font-family: var(--display);
+      font-size: clamp(1.7rem, 3vw, 2.7rem);
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+    }
+
+    .mirror-panel p {
+      margin: 0 0 0.85rem;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+
+    .verdict-band {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 1.2rem;
+      align-items: start;
+      margin-top: 1.5rem;
+      padding-top: 1.15rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    .verdict-tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .verdict-text {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+      line-height: 1.18;
+      color: var(--ink);
+      max-width: 24ch;
+    }
+
+    .section {
+      margin-top: 3.2rem;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: end;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--ink);
+      margin-bottom: 1.1rem;
+    }
+
+    .section-head .left-tag,
+    .section-head .right-tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .section-head .right-tag {
+      text-align: right;
+    }
+
+    .section-title {
+      grid-column: 1 / -1;
+      margin: 0;
+      font-family: var(--sans);
+      font-size: clamp(1.35rem, 2vw, 1.95rem);
+      line-height: 1.12;
+      font-weight: 700;
+      color: var(--ink);
+      max-width: 22ch;
+    }
+
+    .section-title.right {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.2rem;
+      align-items: start;
+    }
+
+    .col p,
+    .full p {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .full {
+      max-width: 860px;
+    }
+
+    h3 {
+      margin: 1.6rem 0 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink);
+    }
+
+    ul, ol {
+      margin: 0 0 1rem;
+      padding-left: 1.25rem;
+      color: var(--text);
+    }
+
+    li {
+      margin-bottom: 0.42rem;
+      font-size: 0.98rem;
+    }
+
+    .comparison-figure,
+    .matrix-figure {
+      margin: 1.9rem 0 0;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--ink);
+    }
+
+    .figure-label {
+      margin: 0 0 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    figure {
+      margin: 0;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: var(--bg);
+    }
+
+    figcaption {
+      margin-top: 0.8rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.55;
+      max-width: 880px;
+    }
+
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.4rem 0 0;
+      font-size: 0.88rem;
+    }
+
+    .metric-table th,
+    .metric-table td {
+      padding: 0.72rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+      vertical-align: top;
+    }
+
+    .metric-table th {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .metric-table td {
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .metric-table td strong { color: var(--ink); }
+
+    .black-note {
+      margin-top: 1.5rem;
+      background: var(--ink);
+      color: var(--inverse);
+      padding: 1rem 1.1rem;
+    }
+
+    .black-note span {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #bbb;
+    }
+
+    .black-note p {
+      margin: 0;
+      color: var(--inverse);
+      font-size: 0.94rem;
+      line-height: 1.62;
+    }
+
+    pre {
+      margin: 1.25rem 0 1.5rem;
+      background: #111111;
+      color: #f5f5f5;
+      padding: 1rem 1.15rem;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.68;
+    }
+
+    .closing {
+      margin-top: 3.4rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--ink);
+      max-width: 860px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .mirror,
+      .section-head,
+      .section-grid,
+      .verdict-band {
+        grid-template-columns: 1fr;
+      }
+
+      .mirror-panel + .mirror-panel {
+        border-left: none;
+        border-top: 1px solid var(--ink);
+      }
+
+      .section-head .right-tag,
+      .section-title.right {
+        text-align: left;
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding-left: 0.9rem; padding-right: 0.9rem; }
+      .hero-top { display: block; }
+      .hero-source { margin-top: 0.4rem; }
+      .hero-metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-top">
+        <p class="eyebrow">Comparative Analysis / Housing Prediction / PCA as a contested choice</p>
+        <p class="hero-source">Notebook evidence: `545` rows, `15` predictors, `70/30` split</p>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <h1>Does PCA Actually Help a Housing Model?</h1>
+          <p class="deck">It is easy to treat principal component analysis as a respectable preprocessing step and much harder to prove that compressing a housing feature table buys enough predictive stability to justify the interpretability you lose on the way.</p>
+        </div>
+        <aside class="hero-card">
+          <p class="hero-card-title">What the notebook really says</p>
+          <div class="hero-metrics">
+            <div>
+              <span>Baseline linear model</span>
+              <strong>`R2 0.65`</strong>
+            </div>
+            <div>
+              <span>PCA with all components</span>
+              <strong>`R2 0.65`</strong>
+            </div>
+            <div>
+              <span>PCA with 6 components</span>
+              <strong>`R2 0.66`</strong>
+            </div>
+            <div>
+              <span>Variance retained at 6</span>
+              <strong>`68.4%`</strong>
+            </div>
+          </div>
+          <p>The score lift is real but narrow. The editorial question is whether a one-point improvement in explained variance is worth replacing understandable housing features with six abstract axes.</p>
+        </aside>
+      </div>
+    </header>
+
+    <section class="mirror">
+      <div class="mirror-panel">
+        <span class="mirror-label">Left panel / Original feature space</span>
+        <h2>Readable, correlated, operationally legible</h2>
+        <p>Area, bedrooms, bathrooms, stories, parking, furnishing status, and two engineered ratios tell a story a housing analyst can actually repeat to another person. You can argue about whether the model overweights <code>area</code> or whether <code>areaperbedroom</code> is doing double duty, but at least the argument remains grounded in the property itself.</p>
+        <p>The notebook confirms that this space is not clean. The maximum feature correlation is `0.8056`, coming from a predictable overlap between <code>area</code> and <code>areaperbedroom</code>. That is exactly the sort of redundancy PCA is designed to compress.</p>
+      </div>
+      <div class="mirror-panel">
+        <span class="mirror-label">Right panel / PCA space</span>
+        <h2>Cleaner geometry, weaker explanation</h2>
+        <p>Once the standardized training set is rotated into principal components, the new axes are effectively uncorrelated. The notebook's post-PCA correlation matrix has off-diagonal values that are numerically near zero. From a geometric standpoint, that is tidy. From a business standpoint, it is instantly harder to explain.</p>
+        <p>PC1 can absorb area, parking, and bathroom scale; PC2 can pull in bedroom tradeoffs and <code>areaperbedroom</code>; but none of that reads like the language buyers, brokers, or lenders actually use when they discuss a house.</p>
+      </div>
+    </section>
+
+    <div class="verdict-band">
+      <div class="verdict-tag">Core tension</div>
+      <p class="verdict-text">PCA earns a cleaner modeling surface here. It does not earn an automatic promotion to “best practice.”</p>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="left-tag">Original side / business meaning</div>
+        <div class="right-tag">PCA side / statistical convenience</div>
+        <h2 class="section-title">The notebook becomes interesting only when you stop asking whether PCA is valid and start asking whether it is worth the trade.</h2>
+      </div>
+      <div class="full">
+        <p>A lot of PCA writeups make the same mistake. They treat dimensionality reduction as a sign of methodological maturity, as if “we applied PCA” were already a conclusion. That is not how this housing case reads to me. The notebook gives us a cleaner question: once we have a 15-column feature table and a plain linear model that already works decently, what exactly are we buying by rotating the space?</p>
+        <p>The answer is not “better prediction” in any dramatic sense. The baseline linear regression on standardized original predictors lands at mean squared error `0.35` and `R2 0.65`. Running regression on the full PCA-transformed space also lands at `0.35` and `0.65`. That should not surprise anyone. If you keep all components, PCA is mostly a rotation. You gain orthogonality. You do not meaningfully simplify the problem.</p>
+        <p>The only moment PCA starts behaving like a substantive choice is when the notebook cuts down to `6` components. Then the model moves to mean squared error `0.33` and `R2 0.66`. That is a modest improvement, not a revolution. Still, it is enough to justify a serious comparison because the dimensionality drop is real: six components instead of fifteen predictors, with cumulative explained variance around `68.4%`.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="left-tag">What you keep</div>
+        <div class="right-tag">What you give up</div>
+        <h2 class="section-title right">Compression only matters if it removes something expensive enough to justify the explanation cost.</h2>
+      </div>
+
+      <div class="comparison-figure">
+        <p class="figure-label">Figure A / Comparison dial</p>
+        <figure>
+          <svg viewBox="0 0 1180 620" role="img" aria-label="Comparison dial showing original feature model on the left, PCA model on the right, and gains and losses in the center">
+            <rect x="24" y="24" width="1132" height="572" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+
+            <text font-family="Public Sans, sans-serif" font-size="24" font-weight="700" fill="#111111">
+              <tspan x="70" y="58">The choice is not model versus no model.</tspan>
+              <tspan x="70" dy="32">It is interpretable correlation versus compressed abstraction.</tspan>
+            </text>
+
+            <rect x="56" y="110" width="330" height="382" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="80" y="142" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">ORIGINAL FEATURES</text>
+            <text x="80" y="176" font-family="Public Sans, sans-serif" font-size="18" font-weight="600" fill="#111111">15 named predictors</text>
+            <text x="80" y="206" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">area, bedrooms, bathrooms, parking, furnishing flags,</text>
+            <text x="80" y="227" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">and engineered ratios like areaperbedroom and bbratio</text>
+
+            <rect x="82" y="258" width="278" height="16" fill="#111111"></rect>
+            <rect x="82" y="292" width="240" height="16" fill="#333333"></rect>
+            <rect x="82" y="326" width="214" height="16" fill="#555555"></rect>
+            <rect x="82" y="360" width="180" height="16" fill="#888888"></rect>
+            <text x="370" y="271" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#111111">area</text>
+            <text x="370" y="305" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#111111">bathrooms</text>
+            <text x="370" y="339" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#111111">parking</text>
+            <text x="370" y="373" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="#111111">furnishing flags</text>
+            <text x="82" y="418" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Max pairwise correlation in the notebook: 0.8056</text>
+            <text x="82" y="441" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Baseline regression: MSE 0.35, R2 0.65</text>
+            <text x="82" y="464" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Interpretability: high</text>
+
+            <rect x="428" y="110" width="324" height="382" fill="#f0f0f0" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="454" y="142" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">GAIN / LOSS BAND</text>
+            <text x="454" y="184" font-family="Public Sans, sans-serif" font-size="17" font-weight="600" fill="#111111">What PCA gives</text>
+            <text x="454" y="211" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Orthogonal axes</text>
+            <text x="454" y="234" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Less redundant geometry</text>
+            <text x="454" y="257" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Smaller feature space when components are dropped</text>
+
+            <line x1="454" y1="286" x2="726" y2="286" stroke="#111111" stroke-width="1"></line>
+
+            <text x="454" y="322" font-family="Public Sans, sans-serif" font-size="17" font-weight="600" fill="#111111">What PCA takes</text>
+            <text x="454" y="349" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Direct coefficient meaning</text>
+            <text x="454" y="372" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Feature-level business language</text>
+            <text x="454" y="395" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">• Easy override by domain judgment</text>
+
+            <rect x="454" y="426" width="272" height="40" fill="#111111"></rect>
+            <text x="590" y="451" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="15" font-weight="600" fill="#f5f5f5">Marginal score gain, material explanation cost</text>
+
+            <rect x="794" y="110" width="330" height="382" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="818" y="142" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">PCA SPACE</text>
+            <text x="818" y="176" font-family="Public Sans, sans-serif" font-size="18" font-weight="600" fill="#111111">6 retained components</text>
+            <text x="818" y="206" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">PC1 through PC6 keep 68.4% cumulative variance</text>
+
+            <circle cx="878" cy="292" r="46" fill="#111111"></circle>
+            <circle cx="967" cy="262" r="34" fill="#333333"></circle>
+            <circle cx="1018" cy="334" r="28" fill="#555555"></circle>
+            <circle cx="926" cy="363" r="24" fill="#888888"></circle>
+            <circle cx="854" cy="376" r="20" fill="#bbb"></circle>
+            <circle cx="1058" cy="286" r="18" fill="#ddd" stroke="#111111" stroke-width="1"></circle>
+            <text x="878" y="297" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#f5f5f5">PC1</text>
+            <text x="967" y="267" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#f5f5f5">PC2</text>
+            <text x="1018" y="338" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#f5f5f5">PC3</text>
+            <text x="926" y="367" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#111111">PC4</text>
+            <text x="854" y="380" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#111111">PC5</text>
+            <text x="1058" y="290" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#111111">PC6</text>
+            <text x="818" y="418" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Off-diagonal correlation after PCA: effectively 0</text>
+            <text x="818" y="441" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Reduced regression: MSE 0.33, R2 0.66</text>
+            <text x="818" y="464" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Interpretability: low to medium</text>
+
+            <line x1="386" y1="302" x2="428" y2="302" stroke="#111111" stroke-width="1.5"></line>
+            <line x1="752" y1="302" x2="794" y2="302" stroke="#111111" stroke-width="1.5"></line>
+          </svg>
+          <figcaption>The left panel keeps the housing vocabulary intact and suffers correlated inputs. The right panel compresses the geometry and slightly improves fit, but only by asking the reader to think in unnamed component space rather than in actual property attributes.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="left-tag">Evidence from the notebook</div>
+        <div class="right-tag">What it means in practice</div>
+        <h2 class="section-title">The strongest technical argument for PCA in this file is not speed. It is decorrelation.</h2>
+      </div>
+      <div class="section-grid">
+        <div class="col">
+          <p>The dataset has `545` rows and `16` columns total, with `price` as the target and `15` predictors after feature selection. Most of them are easy to recognize: structural counts like bedrooms and bathrooms, amenity flags like air conditioning, and derived ratios like <code>areaperbedroom</code> and <code>bbratio</code>. The housing problem itself is ordinary. The tension comes from feature overlap.</p>
+          <p>The notebook measures that overlap explicitly. The maximum non-diagonal correlation is `0.8056104195904636`. That is high enough to create unstable coefficient stories in a linear model, especially when engineered ratios and raw size variables coexist. If you have ever tried to explain why a bedroom coefficient flips or shrinks after adding area-normalized features, you already know why PCA is tempting here.</p>
+          <p>After standardization, PCA rotates the training data into orthogonal components. The resulting principal-component correlation matrix has off-diagonal values on the order of `1e-15`, which is functionally zero. That part is not cosmetic. It means the regression downstream is operating on dimensions that no longer compete with one another for the same sliver of signal.</p>
+        </div>
+        <div class="col">
+          <p>There is a real gain in that cleanup. If the only consumer of the model were another algorithm, I would be more sympathetic to PCA as a default preprocessing step. Cleaner geometry often helps when the alternative is a feature space full of redundant directions.</p>
+          <p>But housing models are rarely consumed only by machines. Someone usually wants to know why a predicted price moved, which feature family matters most, whether a premium came from square footage or furnishing quality, or whether the model is overreacting to rare amenity combinations. PCA makes those questions harder, not impossible, and “harder” is a real cost when the business is already capable of reasoning in named variables.</p>
+          <p>That is why I read the notebook's slight performance lift with caution. Decorrelating the space is valuable. Making the explanation layer fuzzier is also real. The model improvement has to be large enough to pay for that fuzziness. Here it is present, but barely.</p>
+        </div>
+      </div>
+
+      <table class="metric-table" aria-label="Model comparison">
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <th>Observed notebook result</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Standardized original predictors</strong></td>
+            <td>MSE `0.35`, `R2 0.65`</td>
+            <td>Perfectly respectable baseline; the model already explains a useful share of variance without losing variable names.</td>
+          </tr>
+          <tr>
+            <td><strong>PCA with all 15 components</strong></td>
+            <td>MSE `0.35`, `R2 0.65`</td>
+            <td>Expected near-equivalence. Rotation alone changes the geometry, not the information content.</td>
+          </tr>
+          <tr>
+            <td><strong>PCA with 6 components</strong></td>
+            <td>MSE `0.33`, `R2 0.66`</td>
+            <td>Small but real denoising effect. Better fit, weaker interpretability, and only 68.4% retained variance.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="left-tag">Why all-component PCA changes so little</div>
+        <div class="right-tag">Why reduced PCA changes the argument</div>
+        <h2 class="section-title right">The notebook accidentally teaches the most important PCA lesson: reduction is the point, not the rotation.</h2>
+      </div>
+      <div class="full">
+        <p>If you keep all components, PCA is mostly a re-expression of the same information. That is why the all-component regression looks indistinguishable from the baseline. Anyone who expected a dramatic jump there was hoping for magic. PCA is not magic. It cannot create predictive information that was not already in the feature table.</p>
+        <p>The six-component model is different because it actually throws information away. That makes the notebook more interesting, not less, because now there is a defensible trade: some variance is discarded, redundancy is reduced, and the downstream regression edges upward to `R2 0.66`. The case for PCA lives in that narrow band.</p>
+        <p>What I would not do is oversell the gain. A movement from `0.65` to `0.66` is not a mandate. It is a prompt to ask a stricter question: in the environment where this model will be used, is a one-point gain in explained variance more valuable than keeping the model legible in terms of bedrooms, bathrooms, area, and furnishing status? In an automated ranking pipeline, maybe yes. In a decision memo that needs feature-level accountability, probably not.</p>
+
+<pre><code>from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+
+pca = PCA(n_components=6, random_state=100)
+Xtrain_reduced = pca.fit_transform(Xtrain)
+Xtest_reduced = pca.transform(Xtest)
+
+model = LinearRegression()
+model.fit(Xtrain_reduced, ytrain)
+y_pred = model.predict(Xtest_reduced)  # smaller space, weaker direct meaning
+</code></pre>
+
+        <p>The code is simple. The implication is not. Six unnamed components are easier for the regression to digest and harder for a human to interrogate. That is the entire editorial conflict condensed to eight lines.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="left-tag">Decision criteria</div>
+        <div class="right-tag">Recommendation logic</div>
+        <h2 class="section-title">Whether PCA helps depends less on the metric table than on who must live with the model afterward.</h2>
+      </div>
+
+      <div class="matrix-figure">
+        <p class="figure-label">Figure B / Use-decision matrix</p>
+        <figure>
+          <svg viewBox="0 0 1280 620" role="img" aria-label="Decision matrix comparing original features and PCA across interpretability, stability, and predictive convenience">
+            <rect x="24" y="24" width="1232" height="572" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="58" y="66" font-family="Public Sans, sans-serif" font-size="23" font-weight="700" fill="#111111">PCA looks strongest when the model is consumed by a pipeline, not by a conversation.</text>
+
+            <line x1="58" y1="112" x2="1222" y2="112" stroke="#111111" stroke-width="1.5"></line>
+            <line x1="268" y1="112" x2="268" y2="548" stroke="#111111" stroke-width="1.5"></line>
+            <line x1="610" y1="112" x2="610" y2="548" stroke="#111111" stroke-width="1.5"></line>
+            <line x1="852" y1="112" x2="852" y2="548" stroke="#111111" stroke-width="1.5"></line>
+            <line x1="58" y1="184" x2="1222" y2="184" stroke="#ddd" stroke-width="1"></line>
+            <line x1="58" y1="276" x2="1222" y2="276" stroke="#ddd" stroke-width="1"></line>
+            <line x1="58" y1="368" x2="1222" y2="368" stroke="#ddd" stroke-width="1"></line>
+            <line x1="58" y1="460" x2="1222" y2="460" stroke="#ddd" stroke-width="1"></line>
+            <line x1="58" y1="548" x2="1222" y2="548" stroke="#111111" stroke-width="1.5"></line>
+
+            <text x="78" y="146" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">DIMENSION</text>
+            <text x="438" y="146" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">ORIGINAL FEATURES</text>
+            <text x="731" y="146" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">PCA WITH 6 COMPONENTS</text>
+            <text x="957" y="146" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#555555">WHO SHOULD PREFER IT</text>
+
+            <text x="78" y="233" font-family="Public Sans, sans-serif" font-size="16" font-weight="600" fill="#111111">Interpretability</text>
+            <text x="290" y="214" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Direct coefficient stories remain possible.</text>
+            <text x="290" y="238" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">You can talk about area, bathrooms, and parking plainly.</text>
+            <rect x="642" y="203" width="178" height="44" fill="#111111"></rect>
+            <text x="731" y="230" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">Compressed, harder to narrate</text>
+            <text x="874" y="226" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Analysts who value explainability</text>
+
+            <text x="78" y="325" font-family="Public Sans, sans-serif" font-size="16" font-weight="600" fill="#111111">Stability under collinearity</text>
+            <text x="290" y="306" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Sensitive to overlapping variables like</text>
+            <text x="290" y="330" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">area and areaperbedroom.</text>
+            <rect x="642" y="295" width="178" height="44" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="731" y="322" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="14" font-weight="600" fill="#111111">Cleaner orthogonal space</text>
+            <text x="874" y="318" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Modelers optimizing geometry</text>
+
+            <text x="78" y="417" font-family="Public Sans, sans-serif" font-size="16" font-weight="600" fill="#111111">Predictive convenience</text>
+            <text x="290" y="398" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">R2 0.65 is solid and easy to defend.</text>
+            <text x="290" y="422" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">No compression benefit.</text>
+            <rect x="642" y="387" width="178" height="44" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="731" y="414" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="14" font-weight="600" fill="#111111">Slight edge at R2 0.66</text>
+            <text x="874" y="410" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Teams willing to trade clarity for a marginal gain</text>
+
+            <text x="78" y="509" font-family="Public Sans, sans-serif" font-size="16" font-weight="600" fill="#111111">Recommended default</text>
+            <rect x="290" y="480" width="250" height="52" fill="#111111"></rect>
+            <text x="415" y="501" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="14" font-weight="600" fill="#f5f5f5">Use when explanation matters</text>
+            <text x="415" y="522" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="13" fill="#f5f5f5">pricing memo, broker tool, feature review</text>
+            <rect x="642" y="480" width="178" height="52" fill="#ffffff" stroke="#111111" stroke-width="1.5"></rect>
+            <text x="731" y="501" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="14" font-weight="600" fill="#111111">Use selectively</text>
+            <text x="731" y="522" text-anchor="middle" font-family="Public Sans, sans-serif" font-size="13" fill="#111111">batch scoring, compact pipelines</text>
+            <text x="874" y="509" font-family="Public Sans, sans-serif" font-size="14" fill="#333333">Choose based on the reader, not on PCA prestige.</text>
+          </svg>
+          <figcaption>This matrix makes the editorial point explicit. The original-feature model is easier to explain and only slightly worse on the notebook's score table; the reduced PCA model is cleaner statistically and only slightly better predictively.</figcaption>
+        </figure>
+      </div>
+
+      <div class="black-note">
+        <span>My read</span>
+        <p>If the audience for this model is going to ask “why this price?”, I would keep the original feature space and accept the correlated inputs. If the audience only cares about compact batch prediction, the six-component PCA version is defensible. I would not present the latter as an unqualified improvement.</p>
+      </div>
+    </section>
+
+    <section class="section closing">
+      <div class="section-head">
+        <div class="left-tag">Bottom line</div>
+        <div class="right-tag">Action</div>
+        <h2 class="section-title right">PCA helps this housing model a little. The explanation layer pays most of the bill.</h2>
+      </div>
+      <div class="full">
+        <p>The notebook answers its own question more honestly than most PCA demos do. Using every principal component changes almost nothing in predictive performance, which proves that PCA is not a free accuracy hack. Reducing to six components trims the space and nudges fit from `R2 0.65` to `0.66`, which is a respectable result but not a sweeping mandate.</p>
+        <p>So my recommendation is conditional, not devotional. Keep the original standardized features when the model needs to remain interpretable in real-estate language. Use the reduced PCA pipeline only when geometric cleanup and compactness matter more than direct explanation. The right conclusion here is not “PCA is useful.” The right conclusion is narrower: PCA is useful when you can afford to stop speaking in the language of houses.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
