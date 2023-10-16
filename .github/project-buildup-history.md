@@ -8,3 +8,7 @@
 
 - Task summary: Started the Housing PCA Case Study today with the data preparation phase. The dataset has about 80 features describing house characteristics and the goal is to use PCA to understand the latent structure. Did a full missing value audit — about 15 features had more than 10 percent missing, decided to impute with median for continuous and mode for categorical. Also identified and removed the ID column and any leakage-prone features before the analysis.
 - Deliverable: Data prep complete. 15 features imputed. Leakage-prone columns removed.
+## 2023-10-16 - Day 2: Data preparation
+
+- Task summary: The one-hot encoding of the many categorical features exploded the feature count from 80 to 230. Noted this as something that needs careful handling in the PCA — many of the components will reflect categorical structure rather than meaningful variance.
+- Deliverable: Post-encoding feature count noted. Strategy for handling categorical PCA planned.
