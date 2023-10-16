@@ -12,3 +12,7 @@
 
 - Task summary: The one-hot encoding of the many categorical features exploded the feature count from 80 to 230. Noted this as something that needs careful handling in the PCA — many of the components will reflect categorical structure rather than meaningful variance.
 - Deliverable: Post-encoding feature count noted. Strategy for handling categorical PCA planned.
+## 2023-10-16 - Day 2: Data preparation
+
+- Task summary: Added a feature correlation heatmap for just the continuous features to start identifying the natural groupings before running PCA.
+- Deliverable: Continuous feature correlation heatmap added. Natural clusters visible in structure.
