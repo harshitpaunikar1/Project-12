@@ -20,3 +20,7 @@
 
 - Task summary: Ran the full PCA on the housing feature matrix today. The scree plot showed a meaningful drop in eigenvalue after component 10, so focused the interpretation there. The first component clearly represented overall house size. Components 2 and 3 showed a split between quality-related features and age-related features. Wrote detailed interpretations for the top five components by looking at the feature loadings.
 - Deliverable: PCA run on full feature matrix. Top 5 components interpreted. First component is overall size.
+## 2023-10-23 - Day 3: PCA analysis
+
+- Task summary: Added cumulative explained variance plot. 20 components explain about 85 percent of variance — reasonable for this dataset given the number of categorical dummies.
+- Deliverable: Cumulative explained variance plot added.
