@@ -16,3 +16,7 @@
 
 - Task summary: Added a feature correlation heatmap for just the continuous features to start identifying the natural groupings before running PCA.
 - Deliverable: Continuous feature correlation heatmap added. Natural clusters visible in structure.
+## 2023-10-23 - Day 3: PCA analysis
+
+- Task summary: Ran the full PCA on the housing feature matrix today. The scree plot showed a meaningful drop in eigenvalue after component 10, so focused the interpretation there. The first component clearly represented overall house size. Components 2 and 3 showed a split between quality-related features and age-related features. Wrote detailed interpretations for the top five components by looking at the feature loadings.
+- Deliverable: PCA run on full feature matrix. Top 5 components interpreted. First component is overall size.
