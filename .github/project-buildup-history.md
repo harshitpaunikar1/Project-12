@@ -24,3 +24,7 @@
 
 - Task summary: Added cumulative explained variance plot. 20 components explain about 85 percent of variance — reasonable for this dataset given the number of categorical dummies.
 - Deliverable: Cumulative explained variance plot added.
+## 2023-12-04 - Day 4: Final write-up
+
+- Task summary: Wrapped up the Housing PCA Case Study today. Wrote the conclusion section connecting the PCA findings back to practical implications — which components could be useful as inputs to a downstream regression, which categories of features explain most structural variance. Also added a comparison showing whether using PCA-reduced features as input to a regression model does better or worse than the full feature set.
+- Deliverable: Case study concluded. PCA-vs-full features regression comparison added.
