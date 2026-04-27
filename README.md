@@ -1,2 +1,2 @@
-# Project-12
+# Housing PCA Case Study
 HousingCaseStudy_Using_PCA
